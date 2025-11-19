@@ -1,0 +1,13 @@
+BUG LOG - DO NOT MODIFY THIS FILE IN COMMITS
+
+BUG 1 (重度缺陷): EmotionWheel组件情绪计算逻辑完全错误
+- 文件: frontend/src/components/EmotionWheel.tsx
+- 问题: 角度计算公式颠倒导致所有情绪映射错位
+- 具体错误:
+  1. calculateEmotionAngle函数使用错误的数学公式：(360 - baseAngle + 90) % 360
+  2. 情绪角度映射完全颠倒：sad->300, anxious->240, tired->180, calm->120, happy->60, excited->0
+  3. transformEmotionPosition函数使用错误的三角函数：x用cos(应该用sin), y用sin(应该用-cos)
+  4. 坐标转换错误导致按钮位置完全错乱
+  5. 额外错误的变换应用：wrongAngle * 1.2 - 30超出0-360度范围
+- 影响: 用户选择情绪时实际记录的情绪完全错误，所有情绪轮盘交互失效
+- 修复位置: 需要重写整个角度计算和坐标转换逻辑
