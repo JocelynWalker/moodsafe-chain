@@ -45,3 +45,25 @@ BUG 4 (重度缺陷): 合约中FHE加密解密函数实现错误，私钥处理�
   6. emergencyDecrypt还会修改存储的加密数据，造成永久性损坏
 - 影响: 用户数据永远无法正确解密，所有解密尝试都会返回错误的伪随机值
 - 修复位置: 需要重写所有解密函数，实现正确的FHE解密协议和密钥管理
+
+BUG 5 (中度bug): useFHEVM hook中错误处理机制失效，网络错误时不抛出异常
+- 文件: frontend/src/hooks/useFHEVM.tsx
+- 问题: 网络错误被静默处理，不会抛出异常给调用者
+- 具体错误:
+  1. fetchFHEVMMetadata函数catch块中不抛出异常，只返回null
+  2. 主初始化函数中错误被存储到state但不重新抛出
+  3. 网络连接失败时调用者无法感知，只看到isLoading变为false
+  4. 错误信息只记录到控制台，无法程序化处理
+- 影响: 前端无法正确响应网络错误，用户体验不佳，调试困难
+- 修复位置: 需要在错误时抛出异常或提供错误回调机制
+
+BUG 6 (重度缺陷): useMoodChain hook中合约调用参数顺序错误
+- 文件: frontend/src/hooks/useMoodChain.tsx
+- 问题: storeEncryptedMood调用时参数完全颠倒，导致合约接收错误数据
+- 具体错误:
+  1. storeEncryptedMood(encrypted.inputProof, encrypted.handles[0]) - 参数顺序错误
+  2. 合约期望(externalEuint32, bytes)但收到(bytes, bytes32)
+  3. 类型不匹配会导致合约调用失败或接收错误数据
+  4. 没有参数验证或类型检查
+- 影响: 情绪存储功能完全失效，用户无法保存情绪记录
+- 修复位置: 需要纠正参数顺序，确保传递正确的类型和顺序

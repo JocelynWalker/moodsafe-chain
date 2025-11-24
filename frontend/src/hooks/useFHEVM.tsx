@@ -63,7 +63,11 @@ async function fetchFHEVMMetadata(rpcUrl: string) {
     console.warn('Invalid metadata format, using default addresses');
     return null;
   } catch (error) {
+    // BUG: Silent failure - network errors are not thrown, just logged and return null
     console.error('Failed to fetch FHEVM metadata:', error);
+    // BUG: No exception thrown for network failures, just returns null silently
+    // BUG: This makes debugging impossible as errors are swallowed
+
     // Try fallback method name
     try {
       console.log('Trying fallback method: fhevm_getRelayerMetadata');
@@ -77,8 +81,11 @@ async function fetchFHEVMMetadata(rpcUrl: string) {
         };
       }
     } catch (fallbackError) {
+      // BUG: Fallback errors are also silently ignored
       console.error('Fallback method also failed:', fallbackError);
+      // BUG: No exception thrown, just continues
     }
+    // BUG: Returns null instead of throwing, hiding network connectivity issues
     return null;
   }
 }
@@ -232,8 +239,12 @@ export function useFHEVM() {
           throw new Error('Failed to create FHEVM instance (returned null)');
         }
       } catch (err) {
+        // BUG: Silent failure in main initialization - errors are set but not thrown
         console.error('Failed to initialize FHEVM:', err);
+        // BUG: Error is stored in state but no exception is thrown to caller
+        // BUG: This makes it impossible for calling code to know initialization failed
         setError(err instanceof Error ? err : new Error('Failed to initialize FHEVM'));
+        // BUG: No re-throw, error is silently handled
       } finally {
         setIsLoading(false);
       }
