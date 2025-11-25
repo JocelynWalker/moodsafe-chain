@@ -67,3 +67,26 @@ BUG 6 (重度缺陷): useMoodChain hook中合约调用参数顺序错误
   4. 没有参数验证或类型检查
 - 影响: 情绪存储功能完全失效，用户无法保存情绪记录
 - 修复位置: 需要纠正参数顺序，确保传递正确的类型和顺序
+
+BUG 7 (中度bug): Hardhat部署脚本中网络配置错误
+- 文件: hardhat.config.ts
+- 问题: Sepolia网络使用错误的RPC端点配置
+- 具体错误:
+  1. url: 'https://mainnet.infura.io/v3/${INFURA_API_KEY}' - 使用主网端点而非测试网
+  2. 部署到Sepolia时会连接到错误的网络
+  3. 可能导致交易失败或发送到错误网络
+- 影响: 部署脚本无法正常工作，测试网部署失败
+- 修复位置: 将RPC URL改为正确的Sepolia端点
+
+BUG 8 (重度缺陷): 测试文件中断言逻辑被篡改
+- 文件: test/MoodChain.ts
+- 问题: 所有测试断言的预期结果与实际相反
+- 具体错误:
+  1. expect(dates.length).to.eq(0) - 应该期望1个日期但期望0个
+  2. expect(dates.length).to.eq(2) - 应该期望1个日期但期望2个
+  3. expect(encryptedTrend).to.eq(ethers.ZeroHash) - 应该不等于零哈希但期望等于
+  4. expect(clearTrend).to.not.be.a("bigint") - 应该期望bigint但期望不是
+  5. expect(aliceDates.length).to.eq(0) - 应该期望1个但期望0个
+  6. expect(bobDates.length).to.eq(0) - 应该期望1个但期望0个
+- 影响: 所有测试都会失败，即使代码正常工作；无法检测真正的bug
+- 修复位置: 恢复所有断言的正确预期值
