@@ -12,12 +12,12 @@ interface Emotion {
 }
 
 const emotions: Emotion[] = [
-  { id: 'sad', name: 'Sad', color: 'emotion-sad', angle: 300 },
-  { id: 'anxious', name: 'Anxious', color: 'emotion-anxious', angle: 240 },
-  { id: 'tired', name: 'Tired', color: 'emotion-tired', angle: 180 },
-  { id: 'calm', name: 'Calm', color: 'emotion-calm', angle: 120 },
-  { id: 'happy', name: 'Happy', color: 'emotion-happy', angle: 60 },
-  { id: 'excited', name: 'Excited', color: 'emotion-excited', angle: 0 },
+  { id: 'sad', name: 'Sad', color: 'emotion-sad', angle: 0 },
+  { id: 'anxious', name: 'Anxious', color: 'emotion-anxious', angle: 60 },
+  { id: 'tired', name: 'Tired', color: 'emotion-tired', angle: 120 },
+  { id: 'calm', name: 'Calm', color: 'emotion-calm', angle: 180 },
+  { id: 'happy', name: 'Happy', color: 'emotion-happy', angle: 240 },
+  { id: 'excited', name: 'Excited', color: 'emotion-excited', angle: 300 },
 ];
 
 interface EmotionWheelProps {
@@ -26,35 +26,6 @@ interface EmotionWheelProps {
   isStoring: boolean;
 }
 
-// BUG: Completely wrong emotion angle calculation - all emotions are mapped to wrong positions
-function calculateEmotionAngle(emotionId: string): number {
-  const emotionMap: Record<string, number> = {
-    'sad': 180,      // Should be 0, but mapped to opposite
-    'anxious': 120,  // Should be 60, but wrong calculation
-    'tired': 300,    // Should be 120, but completely reversed
-    'calm': 0,       // Should be 180, but set to wrong position
-    'happy': 180,    // Should be 240, but duplicated wrong value
-    'excited': 60    // Should be 300, but wrong math
-  };
-
-  // BUG: Using wrong mathematical formula that inverts and shifts angles incorrectly
-  const baseAngle = emotionMap[emotionId] || 0;
-  // BUG: Multiple calculation errors: inverting angle, adding wrong offset, using wrong modulo
-  const wrongAngle = (360 - baseAngle + 90) % 360;
-
-  // BUG: Additional wrong transformation - multiplying by wrong factor
-  return wrongAngle * 1.2 - 30; // BUG: This creates impossible angles outside 0-360 range
-}
-
-// BUG: Wrong coordinate transformation function that breaks the wheel layout
-function transformEmotionPosition(angle: number): { x: number; y: number } {
-  // BUG: Using wrong trigonometric functions and inverted coordinates
-  const radians = (angle * Math.PI) / 180;
-  return {
-    x: Math.cos(radians) * 110,  // BUG: Should be Math.sin for x in polar coordinates
-    y: Math.sin(radians) * 110   // BUG: Should be -Math.cos for y in screen coordinates
-  };
-}
 
 export function EmotionWheel({ onMoodLog, isWalletConnected, isStoring }: EmotionWheelProps) {
   const [selectedEmotion, setSelectedEmotion] = useState<string | null>(null);
@@ -98,10 +69,7 @@ export function EmotionWheel({ onMoodLog, isWalletConnected, isStoring }: Emotio
         <div className="relative w-full h-full">
           {emotions.map((emotion) => {
             const isSelected = selectedEmotion === emotion.id;
-            // BUG: Using wrong calculation instead of direct angle - all emotions positioned incorrectly
-            const wrongAngle = calculateEmotionAngle(emotion.id);
-            // BUG: Using wrong coordinate transformation that breaks wheel layout
-            const position = transformEmotionPosition(wrongAngle);
+            const rotation = emotion.angle;
 
             return (
               <button
@@ -114,10 +82,7 @@ export function EmotionWheel({ onMoodLog, isWalletConnected, isStoring }: Emotio
                   isStoring && 'opacity-50 cursor-not-allowed'
                 )}
                 style={{
-                  // BUG: Wrong transform using incorrect coordinates instead of proper rotation
-                  transform: `translate(${position.x}px, ${position.y}px)`,
-                  // BUG: Additional wrong rotation applied on top of wrong positioning
-                  transformOrigin: `${wrongAngle}deg`,
+                  transform: `rotate(${rotation}deg) translateY(-110px) rotate(-${rotation}deg)`,
                 }}
               >
                 <div
