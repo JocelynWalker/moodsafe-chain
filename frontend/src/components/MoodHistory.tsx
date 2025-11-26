@@ -37,10 +37,9 @@ export function MoodHistory() {
           </p>
         ) : (
           <div className="space-y-3">
-            {/* BUG: Reversed sorting logic - newest entries appear at bottom instead of top */}
             {moodDates
-              .slice() // BUG: Using slice but forgetting to actually sort
-              .reverse() // BUG: This reverses the array but doesn't sort by date properly
+              .slice()
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
               .map((entry, index) => (
               <div
                 key={index}
