@@ -212,16 +212,10 @@ export function useMoodChain() {
         const moodChainContract = new Contract(CONTRACT_ADDRESS, MOOD_ABI, signer);
         
         console.log('Calling contract.storeEncryptedMood...');
-        // BUG: Parameters completely reversed - inputProof goes first, encrypted handle second
-        // BUG: This will cause the contract to receive wrong data types in wrong positions
-        // BUG: Additionally, the contract expects (externalEuint32, bytes) but gets (bytes, bytes32)
         const tx = await moodChainContract.storeEncryptedMood(
-          encrypted.inputProof,    // BUG: Should be encrypted.handles[0] - wrong type (bytes)
-          encrypted.handles[0]     // BUG: Should be encrypted.inputProof - wrong type (bytes32)
+          encrypted.handles[0],
+          encrypted.inputProof
         );
-
-        // BUG: Wrong transaction parameters - should check gas limits and other tx params
-        // BUG: No proper error handling for parameter type mismatches
         
         console.log('Transaction sent, hash:', tx.hash);
         setTxHash(tx.hash);
