@@ -69,9 +69,7 @@ const config: HardhatUserConfig = {
         count: 10,
       },
       chainId: 11155111,
-      // BUG: Wrong RPC endpoint - using mainnet endpoint instead of sepolia
-      // BUG: This will cause deployment failures and connection errors
-      url: `https://mainnet.infura.io/v3/${INFURA_API_KEY}`, // BUG: Should be sepolia.infura.io
+      url: `https://sepolia.infura.io/v3/${INFURA_API_KEY}`,
       timeout: 120000, // Increase timeout for FHEVM operations
     },
   },
