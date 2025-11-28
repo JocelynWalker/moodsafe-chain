@@ -10,6 +10,14 @@ MoodChain leverages cutting-edge Fully Homomorphic Encryption technology to crea
 
 Watch the demo video: [moodchain-fhe.mp4](./moodchain-fhe.mp4)
 
+The demo video showcases the complete workflow of MoodChain:
+- Connecting a wallet using RainbowKit
+- Selecting emotions on the interactive emotion wheel
+- Storing encrypted moods on-chain
+- Viewing mood history with encrypted entries
+- Computing and decrypting 7-day emotional trends
+- Understanding how FHE protects privacy throughout the process
+
 ## 🌐 Live Demo
 
 **Vercel Deployment**: [https://moodchain-fhe.vercel.app/](https://moodchain-fhe.vercel.app/)
