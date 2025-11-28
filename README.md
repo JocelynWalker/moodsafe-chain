@@ -2,6 +2,10 @@
 
 A privacy-focused mood tracking application using Fully Homomorphic Encryption (FHE) to protect user emotions while enabling encrypted pattern analysis. Built with Zama's fhEVM technology.
 
+## 🎯 Project Overview
+
+MoodChain leverages cutting-edge Fully Homomorphic Encryption technology to create a truly private mood tracking experience. Unlike traditional applications where your emotional data is stored in plaintext, MoodChain ensures that your raw mood values remain encrypted at all times, even during computation. This means you can track your emotional patterns and trends without compromising your privacy.
+
 ## 🎥 Demo Video
 
 Watch the demo video: [moodchain-fhe.mp4](./moodchain-fhe.mp4)
