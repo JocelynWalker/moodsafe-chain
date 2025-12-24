@@ -1,10 +1,77 @@
-import { Lock, TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { Lock, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
 import { useMoodChain } from '@/hooks/useMoodChain';
+import { cn } from '@/lib/utils';
 
 export function MoodHistory() {
   const { moodDates, encryptedTrendHandle, decryptedTrend, decryptTrend } = useMoodChain();
+  const [currentDate, setCurrentDate] = useState(new Date());
+
+  // Get current month and year
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  // Create a Set of dates that have mood entries (YYYY-MM-DD format)
+  const moodDatesSet = useMemo(() => {
+    return new Set(moodDates.map(entry => entry.date));
+  }, [moodDates]);
+
+  // Get first day of month and number of days
+  const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
+  const lastDayOfMonth = new Date(currentYear, currentMonth + 1, 0);
+  const daysInMonth = lastDayOfMonth.getDate();
+  const startingDayOfWeek = firstDayOfMonth.getDay(); // 0 = Sunday, 1 = Monday, etc.
+
+  // Generate calendar days
+  const calendarDays = useMemo(() => {
+    const days: (Date | null)[] = [];
+    
+    // Add empty cells for days before the first day of the month
+    for (let i = 0; i < startingDayOfWeek; i++) {
+      days.push(null);
+    }
+    
+    // Add all days of the month
+    for (let day = 1; day <= daysInMonth; day++) {
+      days.push(new Date(currentYear, currentMonth, day));
+    }
+    
+    return days;
+  }, [currentYear, currentMonth, daysInMonth, startingDayOfWeek]);
+
+  // Navigate to previous month
+  const goToPreviousMonth = () => {
+    setCurrentDate(new Date(currentYear, currentMonth - 1, 1));
+  };
+
+  // Navigate to next month
+  const goToNextMonth = () => {
+    setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
+  };
+
+  // Format date as YYYY-MM-DD
+  const formatDateKey = (date: Date): string => {
+    return date.toISOString().split('T')[0];
+  };
+
+  // Check if a date has a mood entry
+  const hasMoodEntry = (date: Date | null): boolean => {
+    if (!date) return false;
+    return moodDatesSet.has(formatDateKey(date));
+  };
+
+  // Check if date is today
+  const isToday = (date: Date | null): boolean => {
+    if (!date) return false;
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
 
   const getTrendLabel = (trend: number | null) => {
     if (trend === null) return 'Unknown';
@@ -18,6 +85,13 @@ export function MoodHistory() {
     if (trend === 3) return <TrendingDown className="w-4 h-4" />;
     return <Minus className="w-4 h-4" />;
   };
+
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+
+  const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <Card className="glass-card border-primary/30">
@@ -36,25 +110,86 @@ export function MoodHistory() {
             No mood entries yet. Start by logging your first mood!
           </p>
         ) : (
-          <div className="space-y-3">
-            {moodDates
-              .slice()
-              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-              .map((entry, index) => (
-              <div
-                key={index}
-                className="flex items-center justify-between p-3 rounded-lg bg-secondary/50 border border-border/50"
+          <div className="space-y-6">
+            {/* Calendar Header */}
+            <div className="flex items-center justify-between mb-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={goToPreviousMonth}
+                className="h-8 w-8"
               >
-                <div>
-                  <p className="text-sm font-medium">{entry.date}</p>
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Lock className="w-3 h-3" />
-                    Encrypted
-                  </p>
-                </div>
-              </div>
-            ))}
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <h3 className="text-lg font-semibold">
+                {monthNames[currentMonth]} {currentYear}
+              </h3>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={goToNextMonth}
+                className="h-8 w-8"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
 
+            {/* Calendar Grid */}
+            <div className="w-full">
+              {/* Day names header */}
+              <div className="grid grid-cols-7 gap-1 mb-2">
+                {dayNames.map((day) => (
+                  <div
+                    key={day}
+                    className="text-center text-xs font-medium text-muted-foreground py-2"
+                  >
+                    {day}
+                  </div>
+                ))}
+              </div>
+
+              {/* Calendar days */}
+              <div className="grid grid-cols-7 gap-1">
+                {calendarDays.map((date, index) => {
+                  const hasEntry = hasMoodEntry(date);
+                  const isTodayDate = isToday(date);
+
+                  return (
+                    <div
+                      key={index}
+                      className={cn(
+                        "aspect-square flex flex-col items-center justify-center p-1 rounded-lg border transition-all",
+                        date === null && "opacity-0",
+                        date !== null && !hasEntry && "border-border/30 bg-secondary/20",
+                        date !== null && hasEntry && "border-primary/50 bg-primary/10",
+                        isTodayDate && "ring-2 ring-primary/50"
+                      )}
+                    >
+                      {date && (
+                        <>
+                          <span
+                            className={cn(
+                              "text-xs font-medium mb-1",
+                              isTodayDate && "text-primary font-bold"
+                            )}
+                          >
+                            {date.getDate()}
+                          </span>
+                          {hasEntry && (
+                            <div className="flex items-center gap-0.5">
+                              <Lock className="w-2.5 h-2.5 text-primary" />
+                              <span className="text-[8px] text-muted-foreground">Encrypted</span>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Trend Section */}
             {encryptedTrendHandle && (
               <div className="mt-6 p-4 rounded-lg bg-primary/10 border border-primary/30">
                 <div className="flex items-center justify-between mb-4">
@@ -64,13 +199,14 @@ export function MoodHistory() {
                   </div>
                   {decryptedTrend !== null ? (
                     <div
-                      className={`text-xs px-2 py-1 rounded-full flex items-center gap-1 ${
+                      className={cn(
+                        "text-xs px-2 py-1 rounded-full flex items-center gap-1",
                         decryptedTrend === 1
                           ? 'bg-emotion-excited/20 text-emotion-excited'
                           : decryptedTrend === 3
                           ? 'bg-destructive/20 text-destructive'
                           : 'bg-primary/20 text-primary'
-                      }`}
+                      )}
                     >
                       {getTrendIcon(decryptedTrend)}
                       {getTrendLabel(decryptedTrend)}

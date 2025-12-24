@@ -32,8 +32,8 @@ export const config = getDefaultConfig({
   ssr: false,
 });
 
-// Contract address - deployed to Sepolia testnet
-// For local testing, set VITE_CONTRACT_ADDRESS in .env file
-export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '0xc221222A36F0473944946Ee946c9e87B4d63b52C';
+// Contract address - defaults to local Hardhat address
+// For Sepolia testnet, set VITE_CONTRACT_ADDRESS in .env file
+export const CONTRACT_ADDRESS = import.meta.env.VITE_CONTRACT_ADDRESS || '0x5FbDB2315678afecb367f032d93F642f64180aa3';
 
 
