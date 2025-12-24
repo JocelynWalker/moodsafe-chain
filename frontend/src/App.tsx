@@ -25,7 +25,54 @@ function AppContent() {
   const { storeMood, isStoring } = useMoodChain();
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-background">
+    <div className="min-h-screen relative overflow-hidden bg-black">
+      {/* Starfield background */}
+      <div 
+        className="fixed inset-0 pointer-events-none z-0"
+        style={{
+          backgroundImage: `
+            /* Stars - larger and more visible */
+            radial-gradient(circle, rgba(255, 255, 255, 1) 1px, transparent 1px),
+            radial-gradient(circle, rgba(255, 255, 255, 0.8) 0.8px, transparent 0.8px),
+            radial-gradient(circle, rgba(200, 220, 255, 0.9) 1px, transparent 1px),
+            radial-gradient(circle, rgba(255, 255, 255, 0.7) 0.6px, transparent 0.6px),
+            radial-gradient(circle, rgba(200, 200, 255, 0.8) 0.9px, transparent 0.9px),
+            radial-gradient(circle, rgba(255, 255, 255, 0.6) 0.7px, transparent 0.7px),
+            /* Nebula clouds - subtle */
+            radial-gradient(ellipse at 20% 30%, rgba(100, 150, 255, 0.12) 0%, transparent 60%),
+            radial-gradient(ellipse at 80% 70%, rgba(200, 100, 255, 0.1) 0%, transparent 60%),
+            radial-gradient(ellipse at 50% 50%, rgba(150, 200, 255, 0.08) 0%, transparent 70%),
+            radial-gradient(ellipse at 10% 80%, rgba(100, 200, 255, 0.06) 0%, transparent 50%),
+            radial-gradient(ellipse at 90% 20%, rgba(255, 150, 200, 0.06) 0%, transparent 50%)
+          `,
+          backgroundSize: `
+            200px 200px,
+            180px 180px,
+            220px 220px,
+            160px 160px,
+            240px 240px,
+            190px 190px,
+            120% 120%,
+            110% 110%,
+            100% 100%,
+            130% 130%,
+            125% 125%
+          `,
+          backgroundPosition: `
+            5% 10%,
+            15% 25%,
+            25% 15%,
+            35% 30%,
+            45% 20%,
+            55% 35%,
+            20% 30%,
+            80% 70%,
+            50% 50%,
+            10% 80%,
+            90% 20%
+          `
+        }}
+      />
       <div className="relative z-10">
         <Header />
         
