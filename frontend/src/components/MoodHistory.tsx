@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Lock, TrendingUp, TrendingDown, Minus, ChevronLeft, ChevronRight, Heart } from 'lucide-react';
 import { Button } from './ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card';
@@ -17,6 +17,14 @@ export function MoodHistory() {
   const moodDatesSet = useMemo(() => {
     return new Set(moodDates.map(entry => entry.date));
   }, [moodDates]);
+
+  // Debug: log moodDates when they change
+  useEffect(() => {
+    console.log('MoodHistory: moodDates changed', moodDates);
+    console.log('MoodHistory: moodDates length', moodDates.length);
+    console.log('MoodHistory: moodDatesSet', Array.from(moodDatesSet));
+    console.log('MoodHistory: current month/year', currentMonth, currentYear);
+  }, [moodDates, moodDatesSet, currentMonth, currentYear]);
 
   // Get first day of month and number of days
   const firstDayOfMonth = new Date(currentYear, currentMonth, 1);
@@ -51,9 +59,12 @@ export function MoodHistory() {
     setCurrentDate(new Date(currentYear, currentMonth + 1, 1));
   };
 
-  // Format date as YYYY-MM-DD
+  // Format date as YYYY-MM-DD in local timezone (to match the format from useMoodChain)
   const formatDateKey = (date: Date): string => {
-    return date.toISOString().split('T')[0];
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   };
 
   // Check if a date has a mood entry
@@ -195,7 +206,7 @@ export function MoodHistory() {
             </div>
 
             {/* Trend Section */}
-            {encryptedTrendHandle && (
+            {moodDates.length >= 7 && (
               <div className="mt-6 p-4 rounded-lg border border-border/30" style={{
                 background: 'rgba(255, 255, 255, 0.02)',
                 backdropFilter: 'blur(20px)',
@@ -204,44 +215,52 @@ export function MoodHistory() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium" style={{ fontFamily: 'Inter, -apple-system, SF Pro Display, sans-serif' }}>7-Day Trend</p>
-                    <p className="text-xs text-muted-foreground">Computed via FHE</p>
+                    <p className="text-xs text-muted-foreground">
+                      {encryptedTrendHandle ? 'Computed via FHE' : 'Computing... (may take a moment)'}
+                    </p>
                   </div>
-                  {decryptedTrend !== null ? (
-                    <div
-                      className={cn(
-                        "text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5 border",
-                        decryptedTrend === 1
-                          ? 'bg-emotion-excited/10 text-emotion-excited border-emotion-excited/20'
-                          : decryptedTrend === 3
-                          ? 'bg-destructive/10 text-destructive border-destructive/20'
-                          : 'bg-primary/10 text-primary border-primary/20'
-                      )}
-                      style={{
-                        background: decryptedTrend === 1 
-                          ? 'rgba(255, 150, 200, 0.05)' 
-                          : decryptedTrend === 3 
-                          ? 'rgba(255, 100, 100, 0.05)' 
-                          : 'rgba(100, 200, 255, 0.05)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)'
-                      }}
-                    >
-                      {getTrendIcon(decryptedTrend)}
-                      {getTrendLabel(decryptedTrend)}
-                    </div>
+                  {encryptedTrendHandle ? (
+                    decryptedTrend !== null ? (
+                      <div
+                        className={cn(
+                          "text-xs px-3 py-1.5 rounded-md flex items-center gap-1.5 border",
+                          decryptedTrend === 1
+                            ? 'bg-emotion-excited/10 text-emotion-excited border-emotion-excited/20'
+                            : decryptedTrend === 3
+                            ? 'bg-destructive/10 text-destructive border-destructive/20'
+                            : 'bg-primary/10 text-primary border-primary/20'
+                        )}
+                        style={{
+                          background: decryptedTrend === 1 
+                            ? 'rgba(255, 150, 200, 0.05)' 
+                            : decryptedTrend === 3 
+                            ? 'rgba(255, 100, 100, 0.05)' 
+                            : 'rgba(100, 200, 255, 0.05)',
+                          backdropFilter: 'blur(10px)',
+                          WebkitBackdropFilter: 'blur(10px)'
+                        }}
+                      >
+                        {getTrendIcon(decryptedTrend)}
+                        {getTrendLabel(decryptedTrend)}
+                      </div>
+                    ) : (
+                      <button
+                        onClick={decryptTrend}
+                        className="text-xs px-3 py-1.5 rounded-md border border-border/40 text-foreground/80 hover:text-foreground hover:border-primary/40 transition-colors"
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.03)',
+                          backdropFilter: 'blur(10px)',
+                          WebkitBackdropFilter: 'blur(10px)',
+                          fontFamily: 'Inter, -apple-system, SF Pro Display, sans-serif'
+                        }}
+                      >
+                        Reveal Trend
+                      </button>
+                    )
                   ) : (
-                    <button
-                      onClick={decryptTrend}
-                      className="text-xs px-3 py-1.5 rounded-md border border-border/40 text-foreground/80 hover:text-foreground hover:border-primary/40 transition-colors"
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.03)',
-                        backdropFilter: 'blur(10px)',
-                        WebkitBackdropFilter: 'blur(10px)',
-                        fontFamily: 'Inter, -apple-system, SF Pro Display, sans-serif'
-                      }}
-                    >
-                      Reveal Trend
-                    </button>
+                    <div className="text-xs text-muted-foreground">
+                      Waiting for trend computation...
+                    </div>
                   )}
                 </div>
               </div>

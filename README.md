@@ -8,7 +8,7 @@ MoodChain leverages cutting-edge Fully Homomorphic Encryption technology to crea
 
 ## 🎥 Demo Video
 
-Watch the demo video: [moodchain-fhe.mp4](./moodchain-fhe.mp4)
+Watch the demo video: (https://youtu.be/kAN8LGYWa8A)
 
 The demo video showcases the complete workflow of MoodChain:
 - Connecting a wallet using RainbowKit
@@ -20,7 +20,7 @@ The demo video showcases the complete workflow of MoodChain:
 
 ## 🌐 Live Demo
 
-**Vercel Deployment**: [https://moodchain-fhe.vercel.app/](https://moodchain-fhe.vercel.app/)
+**Vercel Deployment**: [https://moodchain-fhe-pro.vercel.app/](https://moodchain-fhe-pro.vercel.app/)
 
 ## 📋 Table of Contents
 
